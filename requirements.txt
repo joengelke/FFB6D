@@ -2,7 +2,7 @@ h5py
 numpy
 torch
 torchvision
-yaml
+pyyaml
 pprint
 enum34
 future
