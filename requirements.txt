@@ -3,7 +3,6 @@ numpy
 torch
 torchvision
 pyyaml
-enum34
 future
 scipy==1.4.1
 opencv_contrib_python==3.4.2.16
