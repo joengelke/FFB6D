@@ -69,7 +69,11 @@ class Config:
             self.n_objects = 21 + 1  # 21 objects + background
             self.n_classes = self.n_objects
             self.use_orbfps = True
-            self.kp_orbfps_dir = 'datasets/ycb/ycb_kps/'
+            self.kp_orbfps_dir = os.path.abspath(
+                os.path.join(
+                    self.exp_dir, 'datasets/ycb/ycb_kps/'
+                )
+            )
             self.kp_orbfps_ptn = os.path.join(self.kp_orbfps_dir, '%s_%d_kps.txt')
             self.ycb_cls_lst_p = os.path.abspath(
                 os.path.join(
@@ -78,7 +82,7 @@ class Config:
             )
             self.ycb_root = os.path.abspath(
                 os.path.join(
-                    self.exp_dir, 'datasets/ycb/YCB_Video_Dataset'
+                    self.exp_dir, 'datasets/ycb/ycb'
                 )
             )
             self.ycb_kps_dir = os.path.abspath(
@@ -127,7 +131,11 @@ class Config:
                 os.path.join(self.exp_dir, 'datasets/linemod/')
             )
             self.use_orbfps = True
-            self.kp_orbfps_dir = 'datasets/linemod/kps_orb9_fps/'
+            self.kp_orbfps_dir = os.path.abspath(
+                os.path.join(
+                    self.exp_dir, 'datasets/linemod/kps_orb9_fps/'
+                )
+            )
             self.kp_orbfps_ptn = os.path.join(self.kp_orbfps_dir, '%s_%d_kps.txt')
             # FPS
             self.lm_fps_kps_dir = os.path.abspath(
@@ -136,7 +144,7 @@ class Config:
 
             lm_r_pth = os.path.join(self.lm_root, "dataset_config/models_info.yml")
             lm_r_file = open(os.path.join(lm_r_pth), "r")
-            self.lm_r_lst = yaml.load(lm_r_file)
+            self.lm_r_lst = yaml.load(lm_r_file, Loader=yaml.FullLoader)
 
             self.val_nid_ptn = "/data/6D_Pose_Data/datasets/LINEMOD/pose_nori_lists/{}_real_val.nori.list"
 
@@ -152,7 +160,15 @@ class Config:
                                 [0.      , 0.        , 1.0]], np.float32),
             'ycb_K2': np.array([[1077.836, 0.        , 323.7872],
                                 [0.      , 1078.189  , 279.6921],
+                                [0.      , 0.        , 1.0]], np.float32),
+            'intel_l515': np.array([[456.60156, 0.        , 310.44922],
+                                [0.      , 456.33203  , 264.03516],
                                 [0.      , 0.        , 1.0]], np.float32)
+        }
+
+        self.factor_depth = {
+            'ycb': 10000,
+            'intel_l515': 1000
         }
 
     def read_lines(self, p):

@@ -40,7 +40,7 @@ class Dataset():
         self.rng = np.random
         if dataset_name == 'train':
             self.add_noise = True
-            self.path = 'datasets/ycb/dataset_config/train_data_list.txt'
+            self.path = "{}/dataset_config/train_data_list.txt".format(os.path.dirname(os.path.abspath(__file__)))
             self.all_lst = bs_utils.read_lines(self.path)
             self.minibatch_per_epoch = len(self.all_lst) // config.mini_batch_size
             self.real_lst = []
@@ -53,7 +53,7 @@ class Dataset():
         else:
             self.pp_data = None
             self.add_noise = False
-            self.path = 'datasets/ycb/dataset_config/test_data_list.txt'
+            self.path = "{}/dataset_config/test_data_list.txt".format(os.path.dirname(os.path.abspath(__file__)))
             self.all_lst = bs_utils.read_lines(self.path)
         print("{}_dataset_size: ".format(dataset_name), len(self.all_lst))
         self.root = config.ycb_root

@@ -540,8 +540,15 @@ class Basic_Utils():
             self.ycb_cls_ptsxyz_dict[cls] = pointxyz
             return pointxyz
         else:
+            self.exp_dir = os.path.dirname(__file__)
+            lm_models_path = os.path.abspath(
+                os.path.join(
+                    self.exp_dir,
+                    '../datasets/linemod/Linemod_preprocessed/models'
+                )
+            )
             ptxyz_pth = os.path.join(
-                'datasets/linemod/Linemod_preprocessed/models',
+                lm_models_path,
                 'obj_%02d.ply' % cls
             )
             pointxyz = self.ply_vtx(ptxyz_pth) / 1000.0
