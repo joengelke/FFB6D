@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "EnvironmentLoad",
+            "type": "shell",
+            "command": "module load /vol/tiago/obj-detection-clf/module"
+        }
+    ]
+}
