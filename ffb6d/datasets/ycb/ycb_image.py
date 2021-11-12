@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
-import os
-import sys
 import cv2
-import torch
 import os.path
 import numpy as np
 import torchvision.transforms as transforms
-from PIL import Image
 from common import Config
 import pickle as pkl
 from utils.basic_utils import Basic_Utils
-import scipy.io as scio
-import scipy.misc
 
-from cv2 import imshow, waitKey
 import normalSpeed
 from models.RandLA.helper_tool import DataProcessing as DP
 
@@ -25,16 +18,17 @@ image_size = (480,640)
 
 class YCB_IMAGE_PREPROC():
 
-    def __init__(self, image_dir, image_name, camera='YCB', image_type='png'):
+    def __init__(self, rgb_image, depth_image, camera='ycb'):
         self.xmap = np.array([[j for i in range(640)] for j in range(480)])
         self.ymap = np.array([[i for i in range(640)] for j in range(480)])
 
         self.trancolor = transforms.ColorJitter(0.2, 0.2, 0.2, 0.05)
         self.norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.224])
 
-        self.image_dir = image_dir
-        self.image_name = image_name
-        self.image_type = image_type
+        self.rgb_image = np.array(rgb_image)[:, :, :3]
+        if self.rgb_image.shape[:2] != (480,640):
+            self.rgb_image = self.resizeKeepingAspectRation(self.rgb_image)
+        self.depth_image = np.array(depth_image)
         self.camera = camera
 
     def dpt_2_pcld(self, dpt, cam_scale, K):
@@ -63,38 +57,18 @@ class YCB_IMAGE_PREPROC():
         l_img[y_offset:y_offset+height, :width] = img.copy()
         return l_img
 
-    def read_rgb_image(self):
-        with Image.open(os.path.join(self.image_dir, self.image_name+'-color.'+self.image_type)) as ci:
-            rgb = np.array(ci)[:, :, :3]
-        if rgb.shape[:2] != (480,640):
-            return self.resizeKeepingAspectRation(rgb)
-        else:
-            return rgb
-
-    def read_depth_image(self):
-        if self.camera == 'intel_l515':
-            with Image.open(os.path.join(self.image_dir, self.image_name+'-depth.'+self.image_type)) as di:
-                return np.array(di)
-        else:
-            with Image.open(os.path.join(self.image_dir, self.image_name+'-depth.'+self.image_type)) as di:
-                return np.array(di)
-
     def get_item(self):
         #Load Images
-        rgb = self.read_rgb_image()
-        dpt_um = self.read_depth_image()
-
-        #DEBUG REMOVE
-        #imshow("rgb", cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
-        #waitKey(0)
-        #imshow("depth", dpt_um)
-        #waitKey(0)
+        rgb = self.rgb_image
+        dpt_um = self.depth_image
 
         #Load Camera Params
-        #K = config.intrinsic_matrix['intel_l515']
-        K = config.intrinsic_matrix['ycb_K1']
-        #cam_scale = config.factor_depth['intel_l515']
-        cam_scale = config.factor_depth['ycb']
+        if self.camera == 'intel_l515':
+            K = config.intrinsic_matrix['intel_l515']
+            cam_scale = config.factor_depth['intel_l515']
+        else:
+            K = config.intrinsic_matrix['ycb_K1']
+            cam_scale = config.factor_depth['ycb']
 
         #Dont Know Yet
         msk_dp = dpt_um > 1e-6
@@ -105,15 +79,9 @@ class YCB_IMAGE_PREPROC():
             dpt_mm, K[0][0], K[1][1], 5, 2000, 20, False
         )
 
-        #DEBUG REMOVE
-        #show_nrm_map = ((nrm_map + 1.0) * 127).astype(np.uint8)
-        #imshow("nrm_map", show_nrm_map)
-
-        #Dont Know Yet
         dpt_m = dpt_um.astype(np.float32) / cam_scale
         dpt_xyz = self.dpt_2_pcld(dpt_m, 1.0, K)
 
-        #Dont Know Yet
         choose = msk_dp.flatten().nonzero()[0].astype(np.uint32)
         if len(choose) < 400:
             return None
