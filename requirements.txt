@@ -21,3 +21,6 @@ plyfile==0.6
 glumpy==1.0.6
 pillow==8.2.0
 termcolor
+tqdm
+pandas
+sklearn

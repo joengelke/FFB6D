@@ -1,0 +1,1 @@
+ubuntu packages: libopencv mit version3, cmake, pybind11(cmake install from source needed, ubuntu package broken), python-dev python3-dev python3-numpy

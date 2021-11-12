@@ -113,31 +113,22 @@ def cal_view_pred_pose(model, data, epoch=0, obj_id=-1):
         if args.dataset == "ycb":
             np_rgb = np_rgb[:, :, ::-1].copy()
         ori_rgb = np_rgb.copy()
-        for cls_id in cu_dt['cls_ids'][0].cpu().numpy():
-            idx = np.where(pred_cls_ids == cls_id)[0]
-            if len(idx) == 0:
-                continue
-            pose = pred_pose_lst[idx[0]]
-            if args.dataset == "ycb":
-                obj_id = int(cls_id[0])
+        for i, id in enumerate(pred_cls_ids):
+            pose = pred_pose_lst[i]
+            obj_id = int(id)
             mesh_pts = bs_utils.get_pointxyz(obj_id, ds_type=args.dataset).copy()
             mesh_pts = np.dot(mesh_pts, pose[:, :3].T) + pose[:, 3]
-            if args.dataset == "ycb":
-                K = config.intrinsic_matrix["ycb_K1"]
-            else:
-                K = config.intrinsic_matrix["linemod"]
+            K = config.intrinsic_matrix["ycb_K1"]
             mesh_p2ds = bs_utils.project_p3d(mesh_pts, 1.0, K)
             color = bs_utils.get_label_color(obj_id, n_obj=22, mode=2)
             np_rgb = bs_utils.draw_p2ds(np_rgb, mesh_p2ds, color=color)
         vis_dir = os.path.join(config.log_eval_dir, "pose_vis")
         ensure_fd(vis_dir)
         f_pth = os.path.join(vis_dir, "{}.jpg".format(epoch))
-        if args.dataset == 'ycb':
-            bgr = np_rgb
-            ori_bgr = ori_rgb
-        else:
-            bgr = np_rgb[:, :, ::-1]
-            ori_bgr = ori_rgb[:, :, ::-1]
+        
+        bgr = np_rgb
+        ori_bgr = ori_rgb
+
         cv2.imwrite(f_pth, bgr)
         if args.show:
             imshow("projected_pose_rgb", bgr)
@@ -152,14 +143,9 @@ def main():
     DEBUG = True
 
     #test_ds = YCB_Image('/mnt/ycb/data/0000', '000001')
-    test_ds = YCB_Image('/home/robocup-adm/depth_image', '2', image_type='png')
+    test_ds = YCB_Image('/home/tmarkmann/depth_image', '2', image_type='png')
+    test_loader = torch.utils.data.DataLoader(test_ds, batch_size=1)
 
-    obj_id = -1
-
-    test_loader = torch.utils.data.DataLoader(
-        test_ds, batch_size=config.test_mini_batch_size, shuffle=False,
-        num_workers=12
-    )
 
     rndla_cfg = ConfigRandLA
     model = FFB6D(
@@ -174,10 +160,8 @@ def main():
             model, None, filename=args.checkpoint[:-8]
         )
 
-    for i, data in tqdm.tqdm(
-        enumerate(test_loader), leave=False, desc="val"
-    ):
-        cal_view_pred_pose(model, data, epoch=i, obj_id=obj_id)
+    for i, data in enumerate(test_loader):
+        cal_view_pred_pose(model, data, epoch=i, obj_id=-1)
 
 
 if __name__ == "__main__":

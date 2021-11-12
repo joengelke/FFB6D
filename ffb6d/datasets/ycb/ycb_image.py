@@ -85,14 +85,16 @@ class YCB_IMAGE_PREPROC():
         dpt_um = self.read_depth_image()
 
         #DEBUG REMOVE
-        imshow("rgb", cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
-        waitKey(0)
-        imshow("depth", dpt_um)
-        waitKey(0)
+        #imshow("rgb", cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
+        #waitKey(0)
+        #imshow("depth", dpt_um)
+        #waitKey(0)
 
         #Load Camera Params
-        K = config.intrinsic_matrix['intel_l515']
-        cam_scale = config.factor_depth['intel_l515']
+        #K = config.intrinsic_matrix['intel_l515']
+        K = config.intrinsic_matrix['ycb_K1']
+        #cam_scale = config.factor_depth['intel_l515']
+        cam_scale = config.factor_depth['ycb']
 
         #Dont Know Yet
         msk_dp = dpt_um > 1e-6
@@ -104,8 +106,8 @@ class YCB_IMAGE_PREPROC():
         )
 
         #DEBUG REMOVE
-        show_nrm_map = ((nrm_map + 1.0) * 127).astype(np.uint8)
-        imshow("nrm_map", show_nrm_map)
+        #show_nrm_map = ((nrm_map + 1.0) * 127).astype(np.uint8)
+        #imshow("nrm_map", show_nrm_map)
 
         #Dont Know Yet
         dpt_m = dpt_um.astype(np.float32) / cam_scale
@@ -138,12 +140,17 @@ class YCB_IMAGE_PREPROC():
         choose = np.array([choose])
         cld_rgb_nrm = np.concatenate((cld, rgb_pt, nrm_pt), axis=1).transpose(1, 0)
 
+        h, w = rgb.shape[:2]
         rgb = np.transpose(rgb, (2, 0, 1)) # hwc2chw
 
         xyz_lst = [dpt_xyz.transpose(2, 0, 1)] # c, h, w
         msk_lst = [dpt_xyz[2, :, :] > 1e-8]
 
         for i in range(3):
+            scale = pow(2, i+1)
+            nh, nw = h // pow(2, i+1), w // pow(2, i+1)
+            ys, xs = np.mgrid[:nh, :nw]
+            xyz_lst.append(xyz_lst[0][:, ys*scale, xs*scale])
             msk_lst.append(xyz_lst[-1][2, :, :] > 1e-8)
         sr2dptxyz = {
             pow(2, ii): item.reshape(3, -1).transpose(1, 0) for ii, item in enumerate(xyz_lst)
@@ -177,6 +184,20 @@ class YCB_IMAGE_PREPROC():
             inputs['p2r_ds_nei_idx%d'%i] = nei_p2r.copy()
             cld = sub_pts
 
+        n_up_layers = 3
+        rgb_up_sr = [4, 2, 2]
+        for i in range(n_up_layers):
+            r2p_nei = DP.knn_search(
+                sr2dptxyz[rgb_up_sr[i]][None, ...],
+                inputs['cld_xyz%d'%(n_ds_layers-i-1)][None, ...], 16
+            ).astype(np.int32).squeeze(0)
+            inputs['r2p_up_nei_idx%d'%i] = r2p_nei.copy()
+            p2r_nei = DP.knn_search(
+                inputs['cld_xyz%d'%(n_ds_layers-i-1)][None, ...],
+                sr2dptxyz[rgb_up_sr[i]][None, ...], 1
+            ).astype(np.int32).squeeze(0)
+            inputs['p2r_up_nei_idx%d'%i] = p2r_nei.copy()
+
         item_dict = dict(
             rgb=rgb.astype(np.uint8),  # [c, h, w]
             cld_rgb_nrm=cld_rgb_nrm.astype(np.float32),  # [9, npts]
@@ -184,7 +205,6 @@ class YCB_IMAGE_PREPROC():
         )
         item_dict.update(inputs)
         return item_dict
-
 
     def __len__(self):
         return 1
