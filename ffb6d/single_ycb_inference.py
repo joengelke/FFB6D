@@ -150,7 +150,7 @@ def main():
     predicted_ids, predicted_poses, rgb_image = predict_poses(model, data, config)
     print("poses:", predicted_poses)
     bs_utils = Basic_Utils(config)
-    print("ids:", predicted_ids, [bs_utils.get_cls_name(c.item(), "ycb") for c in predicted_ids])
+    print("ids:",[bs_utils.get_cls_name(c.item(), "ycb") for c in predicted_ids])
     show_predicted_poses(config, predicted_ids, predicted_poses, rgb_image, args.camera)
 
 

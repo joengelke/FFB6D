@@ -168,7 +168,7 @@ class Config:
 
         self.factor_depth = {
             'ycb': 10000,
-            'intel_l515': 1000
+            'intel_l515': 10000
         }
 
     def read_lines(self, p):

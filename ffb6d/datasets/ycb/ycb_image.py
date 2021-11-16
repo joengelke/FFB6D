@@ -26,11 +26,9 @@ class YCB_IMAGE_PREPROC():
         self.norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.224])
 
         self.rgb_image = np.array(rgb_image)[:, :, :3]
-        if self.rgb_image.shape[:2] != (480,640):
-            self.rgb_image = self.resizeKeepingAspectRation(self.rgb_image)
+        self.rgb_image = self.resizeKeepingAspectRation(self.rgb_image)
         self.depth_image = np.array(depth_image)
-        if self.depth_image.shape[:2] != (480,640):
-            self.depth_image = self.resizeKeepingAspectRation(self.depth_image)
+        self.depth_image = self.resizeKeepingAspectRation(self.depth_image, True)
         self.camera = camera
 
     def dpt_2_pcld(self, dpt, cam_scale, K):
@@ -46,9 +44,11 @@ class YCB_IMAGE_PREPROC():
         dpt_3d = dpt_3d * msk[:, :, None]
         return dpt_3d
 
-    def resizeKeepingAspectRation(self, img):
+    def resizeKeepingAspectRation(self, img, mono = False):
         dtype = img.dtype
+        print("shapein", img.shape, dtype)
         if dtype == np.int32:
+            # TODO need correct resize for int/uint32
             dtype = np.uint16
 
         if len(img.shape) == 2:
@@ -56,6 +56,8 @@ class YCB_IMAGE_PREPROC():
 
         new_height = int(img.shape[0] * (640/img.shape[1]))
         img = cv2.resize(img, (640, new_height))
+        if mono and len(img.shape) == 3:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         height, width = img.shape[:2]
         y_offset = int((image_size[0] - new_height) / 2)
@@ -69,6 +71,7 @@ class YCB_IMAGE_PREPROC():
             blank_image = np.zeros([image_size[0], image_size[1], img.shape[2]], dtype)
             l_img = blank_image.copy()
             l_img[y_offset:y_offset+height, :width] = img.copy()
+        print("shapeout", l_img.shape, l_img.dtype)
         return l_img
 
     def get_item(self):
