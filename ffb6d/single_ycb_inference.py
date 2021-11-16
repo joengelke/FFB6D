@@ -46,7 +46,9 @@ def load_checkpoint(model=None, optimizer=None, filename="checkpoint"):
 
 def load_data(rgb_path, depth_path, camera):
     rgb_image = read_image(rgb_path)
+    print("rgb_image type", rgb_image.dtype)
     depth_image = read_image(depth_path)
+    print("depth_image type", depth_image.dtype)
     assert (rgb_image is not None) and (depth_image is not None), "Failed to read in images!"
 
     ds = YCB_Image(rgb_image=rgb_image, depth_image=depth_image, camera=camera)
@@ -60,7 +62,7 @@ def predict_poses(model, data, config):
         for key in data.keys():
             if data[key].dtype in [np.float32, np.uint8]:
                 cu_dt[key] = torch.from_numpy(data[key].astype(np.float32)).cuda()
-            elif data[key].dtype in [np.int32, np.uint32]:
+            elif data[key].dtype in [np.int32, np.uint32, np.uint16]:
                 cu_dt[key] = torch.LongTensor(data[key].astype(np.int32)).cuda()
             elif data[key].dtype in [torch.uint8, torch.float32]:
                 cu_dt[key] = data[key].float().cuda()
@@ -146,6 +148,9 @@ def main():
         )
 
     predicted_ids, predicted_poses, rgb_image = predict_poses(model, data, config)
+    print("poses:", predicted_poses)
+    bs_utils = Basic_Utils(config)
+    print("ids:", predicted_ids, [bs_utils.get_cls_name(c.item(), "ycb") for c in predicted_ids])
     show_predicted_poses(config, predicted_ids, predicted_poses, rgb_image, args.camera)
 
 

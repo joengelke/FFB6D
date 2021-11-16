@@ -29,6 +29,8 @@ class YCB_IMAGE_PREPROC():
         if self.rgb_image.shape[:2] != (480,640):
             self.rgb_image = self.resizeKeepingAspectRation(self.rgb_image)
         self.depth_image = np.array(depth_image)
+        if self.depth_image.shape[:2] != (480,640):
+            self.depth_image = self.resizeKeepingAspectRation(self.depth_image)
         self.camera = camera
 
     def dpt_2_pcld(self, dpt, cam_scale, K):
@@ -45,16 +47,28 @@ class YCB_IMAGE_PREPROC():
         return dpt_3d
 
     def resizeKeepingAspectRation(self, img):
+        dtype = img.dtype
+        if dtype == np.int32:
+            dtype = np.uint16
+
+        if len(img.shape) == 2:
+            img = np.array(img[:, :, None], dtype=dtype)
+
         new_height = int(img.shape[0] * (640/img.shape[1]))
         img = cv2.resize(img, (640, new_height))
 
         height, width = img.shape[:2]
-        blank_image = np.zeros([image_size[0], image_size[1], img.shape[2]], np.uint8)
-
-        l_img = blank_image.copy()
         y_offset = int((image_size[0] - new_height) / 2)
+        
         # Here, y_offset+height <= blank_image.shape[0] and x_offset+width <= blank_image.shape[1]
-        l_img[y_offset:y_offset+height, :width] = img.copy()
+        if len(img.shape) == 2:
+            blank_image = np.zeros([image_size[0], image_size[1]], dtype)
+            l_img = blank_image.copy()
+            l_img[y_offset:y_offset+height, :width] = img.copy()
+        else:
+            blank_image = np.zeros([image_size[0], image_size[1], img.shape[2]], dtype)
+            l_img = blank_image.copy()
+            l_img[y_offset:y_offset+height, :width] = img.copy()
         return l_img
 
     def get_item(self):
