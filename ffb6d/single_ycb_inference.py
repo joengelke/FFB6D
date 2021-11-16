@@ -46,9 +46,9 @@ def load_checkpoint(model=None, optimizer=None, filename="checkpoint"):
 
 def load_data(rgb_path, depth_path, camera):
     rgb_image = read_image(rgb_path)
-    print("rgb_image type", rgb_image.dtype)
+    print("rgb_image", rgb_path, rgb_image.dtype)
     depth_image = read_image(depth_path)
-    print("depth_image type", depth_image.dtype)
+    print("depth_image type",depth_path, depth_image.dtype)
     assert (rgb_image is not None) and (depth_image is not None), "Failed to read in images!"
 
     ds = YCB_Image(rgb_image=rgb_image, depth_image=depth_image, camera=camera)
