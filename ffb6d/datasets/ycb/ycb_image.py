@@ -80,12 +80,12 @@ class YCB_IMAGE_PREPROC():
         dpt_um = self.depth_image
 
         #Load Camera Params
-        if self.camera == 'intel_l515':
-            K = config.intrinsic_matrix['intel_l515']
-            cam_scale = config.factor_depth['intel_l515']
-        else:
+        if self.camera == 'ycb':
             K = config.intrinsic_matrix['ycb_K1']
-            cam_scale = config.factor_depth['ycb']
+        else:
+            K = config.intrinsic_matrix[self.camera]
+        
+        cam_scale = config.factor_depth[self.camera]
 
         #Dont Know Yet
         msk_dp = dpt_um > 1e-6

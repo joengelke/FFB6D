@@ -94,10 +94,10 @@ def show_predicted_poses(config, predicted_ids, predicted_poses, rgb_image, came
         mesh_pts = bs_utils.get_pointxyz(obj_id, ds_type="ycb").copy()
         mesh_pts = np.dot(mesh_pts, pose[:, :3].T) + pose[:, 3]
 
-        if camera == 'intel_l515':
-            K = config.intrinsic_matrix['intel_l515']
-        else:
+        if camera == 'ycb':
             K = config.intrinsic_matrix['ycb_K1']
+        else:
+            K = config.intrinsic_matrix[camera]
 
         mesh_p2ds = bs_utils.project_p3d(mesh_pts, 1.0, K)
         color = bs_utils.get_label_color(obj_id, n_obj=22, mode=2)
