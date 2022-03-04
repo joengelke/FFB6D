@@ -14,13 +14,14 @@ dependencies:
   - numpy
   - pyyaml
   - future
-  - scipy=1.4.1
+  - scipy
   - matplotlib
+  - pip
   - pip:
-    - transforms3d==0.3.1
-    - scikit_image==0.13.1
-    - lmdb==0.94
-    - cffi==1.11.5
-    - easydict==1.7
-    - plyfile==0.6
-    - glumpy==1.0.6
+    - transforms3d
+    - scikit_image
+    - lmdb
+    - cffi
+    - easydict
+    - plyfile
+    - glumpy
