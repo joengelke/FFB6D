@@ -16,7 +16,7 @@ class ConfigRandLA:
     num_classes = 22  # Number of valid classes
     sub_grid_size = 0.06  # preprocess_parameter
 
-    batch_size = 3  # batch_size during training
+    batch_size = 1  # batch_size during training
     val_batch_size = 3  # batch_size during validation and test
     train_steps = 500  # Number of steps per epochs
     val_steps = 100  # Number of validation steps per epoch
@@ -53,8 +53,8 @@ class Config:
         self.log_traininfo_dir = os.path.join(self.log_dir, 'train_info', self.cls_type)
         ensure_fd(self.log_traininfo_dir)
 
-        self.n_total_epoch = 25
-        self.mini_batch_size = 3
+        self.n_total_epoch = 1
+        self.mini_batch_size = 1
         self.val_mini_batch_size = 3
         self.test_mini_batch_size = 1
 
@@ -78,6 +78,39 @@ class Config:
             self.ycb_cls_lst_p = os.path.abspath(
                 os.path.join(
                     self.exp_dir, 'datasets/ycb/dataset_config/classes.txt'
+                )
+            )
+            self.ycb_root = os.path.abspath(
+                os.path.join(
+                    self.exp_dir, 'datasets/ycb/ycb'
+                )
+            )
+            self.ycb_kps_dir = os.path.abspath(
+                os.path.join(
+                    self.exp_dir, 'datasets/ycb/ycb_kps/'
+                )
+            )
+            ycb_r_lst_p = os.path.abspath(
+                os.path.join(
+                    self.exp_dir, 'datasets/ycb/dataset_config/radius.txt'
+                )
+            )
+            self.ycb_r_lst = list(np.loadtxt(ycb_r_lst_p))
+            self.ycb_cls_lst = self.read_lines(self.ycb_cls_lst_p)
+            self.ycb_sym_cls_ids = [13, 16, 19, 20, 21]
+        elif self.dataset_name == 'own_ycb':
+            self.n_objects = 14 + 1  # 14 objects + background
+            self.n_classes = self.n_objects
+            self.use_orbfps = True
+            self.kp_orbfps_dir = os.path.abspath(
+                os.path.join(
+                    self.exp_dir, 'datasets/ycb/ycb_kps/'
+                )
+            )
+            self.kp_orbfps_ptn = os.path.join(self.kp_orbfps_dir, '%s_%d_kps.txt')
+            self.ycb_cls_lst_p = os.path.abspath(
+                os.path.join(
+                    self.exp_dir, 'datasets/ycb/dataset_config/own_classes.txt'
                 )
             )
             self.ycb_root = os.path.abspath(
@@ -161,8 +194,8 @@ class Config:
             'ycb_K2': np.array([[1077.836, 0.        , 323.7872],
                                 [0.      , 1078.189  , 279.6921],
                                 [0.      , 0.        , 1.0]], np.float32),
-            'xtion': np.array([[1066.778, 0.        , 312.9869],
-                                [0.      , 1067.487  , 241.3109],
+            'xtion': np.array([[524.096  , 0.        , 330.362 ],
+                                [0.      , 523.990   , 252.017 ],
                                 [0.      , 0.        , 1.0]], np.float32),
             'intel_l515': np.array([[456.60156, 0.        , 310.44922],
                                 [0.      , 456.33203  , 264.03516],

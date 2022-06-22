@@ -384,14 +384,16 @@ class Trainer(object):
                     self.model, data, is_eval=True, is_test=is_test, finish_test=True,
                     test_pose=test_pose
                 )
+
             seg_res_fn = 'seg_res'
+            #print(acc_dict.items())
             for k, v in acc_dict.items():
-                seg_res_fn += '_%s%.2f' % (k, v)
+                seg_res_fn += '_%s' % k #seg_res_fn += '_%s%.2f' % (k, v)
             with open(os.path.join(config.log_eval_dir, seg_res_fn), 'w') as of:
                 for k, v in acc_dict.items():
                     print(k, v, file=of)
-        if args.local_rank == 0:
-            writer.add_scalars('val_acc', acc_dict, it)
+        #if args.local_rank == 0:
+        #    writer.add_scalars('val_acc', acc_dict, it)
 
         return total_loss / count, eval_dict
 
@@ -540,7 +542,7 @@ def train():
     torch.manual_seed(0)
 
     if not args.eval_net:
-        train_ds = dataset_desc.Dataset('train')
+        train_ds = dataset_desc.Dataset('train') # train
         train_sampler = torch.utils.data.distributed.DistributedSampler(train_ds)
         train_loader = torch.utils.data.DataLoader(
             train_ds, batch_size=config.mini_batch_size, shuffle=False,

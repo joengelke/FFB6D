@@ -7,6 +7,8 @@ from __future__ import (
     unicode_literals,
 )
 import os
+
+import cv2
 import torch
 import argparse
 import numpy as np
@@ -18,6 +20,7 @@ from datasets.ycb.ycb_image import YCB_IMAGE_PREPROC as YCB_Image
 from utils.pvn3d_eval_utils_kpls import cal_frame_poses, cal_frame_poses_lm
 from utils.basic_utils import Basic_Utils
 from cv2 import imshow, waitKey
+
 
 def load_checkpoint(model=None, optimizer=None, filename="checkpoint"):
     filename = "{}.pth.tar".format(filename)
@@ -104,6 +107,7 @@ def show_predicted_poses(config, predicted_ids, predicted_poses, rgb_image, came
         np_rgb = bs_utils.draw_p2ds(np_rgb, mesh_p2ds, color=color)
     bgr = np_rgb
 
+    # cv2.imwrite('/home/bv6dof/Desktop/test1.jpg',bgr)
     imshow("projected_pose_rgb", bgr)
     waitKey()
 
@@ -150,8 +154,10 @@ def main():
     predicted_ids, predicted_poses, rgb_image = predict_poses(model, data, config)
     print("poses:", predicted_poses)
     bs_utils = Basic_Utils(config)
-    print("ids:",[bs_utils.get_cls_name(c.item(), "ycb") for c in predicted_ids])
+    print("ids:", [bs_utils.get_cls_name(c.item(), "ycb") for c in predicted_ids])
     show_predicted_poses(config, predicted_ids, predicted_poses, rgb_image, args.camera)
+
+
 
 
 if __name__ == "__main__":
