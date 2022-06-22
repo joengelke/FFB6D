@@ -80,11 +80,12 @@ class Config:
                     self.exp_dir, 'datasets/ycb/dataset_config/classes.txt'
                 )
             )
-            self.ycb_root = os.path.abspath(
+            '''self.ycb_root = os.path.abspath(
                 os.path.join(
                     self.exp_dir, 'datasets/ycb/ycb'
                 )
-            )
+            )'''
+            self.ycb_root = os.path.abspath('/vol/media/ycb')
             self.ycb_kps_dir = os.path.abspath(
                 os.path.join(
                     self.exp_dir, 'datasets/ycb/ycb_kps/'

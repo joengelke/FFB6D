@@ -40,20 +40,20 @@ class Dataset():
         self.rng = np.random
         if dataset_name == 'train':
             self.add_noise = True
-            self.path = "{}/dataset_config/own_train_data_list.txt".format(os.path.dirname(os.path.abspath(__file__)))
+            self.path = "{}/dataset_config/train_data_list.txt".format(os.path.dirname(os.path.abspath(__file__)))
             self.all_lst = bs_utils.read_lines(self.path)
             self.minibatch_per_epoch = len(self.all_lst) // config.mini_batch_size
             self.real_lst = []
             self.syn_lst = []
             for item in self.all_lst:
-                if item[:8] == 'owndata/': #original item[:5] == 'data/'
+                if item[:5] == 'data/': #item[:8] == 'owndata/':
                     self.real_lst.append(item)
                 else:
                     self.syn_lst.append(item)
         else:
             self.pp_data = None
             self.add_noise = False
-            self.path = "{}/dataset_config/own_test_data_list.txt".format(os.path.dirname(os.path.abspath(__file__)))
+            self.path = "{}/dataset_config/test_data_list.txt".format(os.path.dirname(os.path.abspath(__file__)))
             self.all_lst = bs_utils.read_lines(self.path)
         print("{}_dataset_size: ".format(dataset_name), len(self.all_lst))
         self.root = config.ycb_root
@@ -182,7 +182,7 @@ class Dataset():
             labels = np.array(li)
         rgb_labels = labels.copy()
         meta = scio.loadmat(os.path.join(self.root, item_name+'-meta.mat'))
-        if item_name[:8] != 'data_syn' and int(item_name[8:12]) >= 60: #owndataset: [8:12] original: [5:9]
+        if item_name[:8] != 'data_syn' and int(item_name[5:9]) >= 60: #owndataset: [8:12] original: [5:9]
             K = config.intrinsic_matrix['ycb_K2']
         else:
             K = config.intrinsic_matrix['ycb_K1']
