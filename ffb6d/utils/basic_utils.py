@@ -104,7 +104,7 @@ class PoseTransformer(object):
         lm_pth = 'datasets/linemod/LINEMOD'
         lm_occ_pth = 'datasets/linemod/OCCLUSION_LINEMOD'
         self.blender_model_path = os.path.join(lm_pth, '{}/{}.ply'.format(class_type, class_type))
-        self.xyz_pattern = os.path.join(lm_occ_pth, 'models/{}/{}.xyz')
+        self.xyz_pattern = os.path.join(lm_occ_pth, 'own_models/{}/{}.xyz')
 
     @staticmethod
     def load_ply_model(model_path):
@@ -493,7 +493,7 @@ class Basic_Utils():
         self, cls
     ):
         ply_pattern = os.path.join(
-            self.config.ycb_root, '/models',
+            self.config.ycb_root, '/own_models',
             '{}/textured.ply'
         )
         ply = PlyData.read(ply_pattern.format(cls, cls))
@@ -533,7 +533,7 @@ class Basic_Utils():
             if cls in self.ycb_cls_ptsxyz_dict.keys():
                 return self.ycb_cls_ptsxyz_dict[cls]
             ptxyz_ptn = os.path.join(
-                self.config.ycb_root, 'models',
+                self.config.ycb_root, 'own_models',
                 '{}/points.xyz'.format(cls),
             )
             pointxyz = np.loadtxt(ptxyz_ptn.format(cls), dtype=np.float32)
@@ -544,7 +544,7 @@ class Basic_Utils():
             lm_models_path = os.path.abspath(
                 os.path.join(
                     self.exp_dir,
-                    '../datasets/linemod/Linemod_preprocessed/models'
+                    '../datasets/linemod/Linemod_preprocessed/own_models'
                 )
             )
             ptxyz_pth = os.path.join(

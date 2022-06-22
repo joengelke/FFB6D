@@ -74,7 +74,7 @@ See our demo video on [YouTube](https://www.youtube.com/watch?v=SSi2TnyD6Is) or 
 
 - Compile [RandLA-Net](https://github.com/qiqihaer/RandLA-Net-pytorch) operators:
   ```shell
-  cd ffb6d/models/RandLA/
+  cd ffb6d/own_models/RandLA/
   sh compile_op.sh
   ```
 

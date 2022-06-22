@@ -325,7 +325,7 @@ def model_fn_decorator(
 
 class Trainer(object):
     r"""
-        Reasonably generic trainer for pytorch models
+        Reasonably generic trainer for pytorch own_models
 
     Parameters
     ----------
